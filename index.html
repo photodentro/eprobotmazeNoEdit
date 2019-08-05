@@ -7,27 +7,19 @@ SPDX-License-Identifier: CC-BY-SA-4.0
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Ρομπότ εδάφους (πλήκτρα - δάπεδα)</title>
+  <title>Ρομπότ εδάφους (πλήκτρα - λαβύρινθος)</title>
   <style>
     /* Dummy style for animations */
   </style>
   <link rel="stylesheet" type="text/css" href="activity.css">
   <script>
   </script>
+  <script src="maze.js"></script>
   <script src="activity.js"></script>
 </head>
 <body>
 <div id="main">
   <div id = "ui">
-    <div id = "mats">
-      Επιλογή δαπέδου:
-      <select id ="sel" onchange="changeGrid();">
-        <option value="empty">Κενό</option>
-        <option value="dice">Ζάρι</option>
-        <option value="alpha">Αλφαβήτα</option>
-        <option value="school">Σχολείο</option>
-      </select>
-    </div>
   	<div id = "up">
   		<img id="cforward" src="./resource/beebot-fd.svg"/>
   	</div>
@@ -39,7 +31,8 @@ SPDX-License-Identifier: CC-BY-SA-4.0
 		<img id="cbackward" src="./resource/beebot-bk.svg"/>
     </div>
     <div id="programButtons">
-      <img id="cgo" src="./resource/beebot-go.svg" title="Εκτέλεση" alt="Εκτέλεση"/><br/>
+      <img id="newmaze" src="./resource/newmaz.svg" title="Νέος λαβύρινθος" alt="Νέος λαβύρινθος"/>
+      <img id="cgo" src="./resource/beebot-go.svg" title="Εκτέλεση" alt="Εκτέλεση"/>
       <img id="cstop" src="./resource/beebot-pa.svg" title="Στοπ" alt="Στοπ"/>
       <img id="cdelete" src="./resource/beebot-de.svg" title="Διαγραφή" alt="Διαγραφή"/>
     </div>
@@ -167,7 +160,9 @@ SPDX-License-Identifier: CC-BY-SA-4.0
         <img id="cell10lt" src="./resource/beebot-lt.svg"/>
       </div>
   </div>
-    
+  
+  <canvas id="mycanvas">
+  </canvas>
   <div id="stage">
       <img id="eprobot" src="./resource/eprobot.svg">
   </div>

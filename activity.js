@@ -567,6 +567,12 @@ function init(){
   for (let i=0; i<allCommands; i++){
     ge('cell'+i.toString()).onclick = function(){runFast(i); act.selected = i; console.log(act.selected);};
   }
+
+  ge('newmaze').addEventListener('click',function(){
+    canvasDraw();
+  })
+  canvasDraw();
+
 }
 
 window.onerror = onError;
@@ -579,17 +585,4 @@ if (document.readyState === 'loading') {
 }
 
 
-function changeGrid(){
-  var grids = {"empty":"resource/grid.svg",
-               "alpha":"resource/alphabet.svg",
-               "dice":"resource/dice.svg",
-               "school":"resource/school.svg"}
-  var s = ge('sel');
-  var i = s.selectedIndex;
-  var sv = s.options[i].value;
-  var im = grids[sv];
-  var imurl = "url('" + im + "')";
-
-  ge('stage').style.backgroundImage = imurl;
-}
 

@@ -125,6 +125,11 @@ body {
   width:10em;
 }
 
+#newmaze{
+  width:80%;
+  margin-top:1em;
+  cursor:pointer;
+}
 #cgo{
   width:80%;
   margin-top:1em;
@@ -188,8 +193,16 @@ body {
   transform: scale1.1);
 }
 #stage{
-  background-image:url('./resource/grid.svg');
-  background-size: cover;
+  position:absolute;
+  display:inline-block;
+  margin-bottom: 1.5em;
+  margin-right:0.5em;
+  height: 30.1em;
+  width:42em;
+}
+#mycanvas{
+  background-color:white;
+  position:absolute;
   display:inline-block;
   margin-bottom: 1.5em;
   margin-right:0.5em;
