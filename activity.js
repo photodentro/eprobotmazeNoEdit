@@ -569,8 +569,9 @@ function init(){
   }
 
   ge('newmaze').addEventListener('click',function(){
+    //canvasDraw();
     canvasDraw();
-  })
+  });
   canvasDraw();
 
 }
