@@ -22,52 +22,52 @@ function getId(x, y) {
 
 
 function isPossible(x, y) {
-    var wall = g.maze[getId(x, y)]
-    var pos = []
-    wall = wall ^ SET
-    pos[0] = 0
+    var wall = g.maze[getId(x, y)];
+    var pos = [];
+    wall = wall ^ SET;
+    pos[0] = 0;
     if (x === 0) {
-        wall = wall ^ WEST
+        wall = wall ^ WEST;
     }
     if (y === 0) {
-        wall = wall ^ NORTH
+        wall = wall ^ NORTH;
     }
     if (x === mazeColumns - 1) {
-        wall = wall ^ EAST
+        wall = wall ^ EAST;
     }
     if (y === mazeRows - 1) {
-        wall = wall ^ SOUTH
+        wall = wall ^ SOUTH;
     }
     if (wall & EAST) {
         if (check(x + 1, y) === 0) {
-            pos[0] = pos[0] + 1
-            pos[pos[0]] = EAST
+            pos[0] = pos[0] + 1;
+            pos[pos[0]] = EAST;
         }
     }
     if (wall & SOUTH) {
         if (check(x, y + 1) === 0) {
-            pos[0] = pos[0] + 1
-            pos[pos[0]] = SOUTH
+            pos[0] = pos[0] + 1;
+            pos[pos[0]] = SOUTH;
         }
     }
     if (wall & WEST) {
         if (check(x - 1, y) === 0) {
-            pos[0] = pos[0] + 1
-            pos[pos[0]] = WEST
+            pos[0] = pos[0] + 1;
+            pos[pos[0]] = WEST;
         }
     }
     if (wall & NORTH) {
         if (check(x, y - 1) === 0) {
-            pos[0] = pos[0] + 1
-            pos[pos[0]] = NORTH
+            pos[0] = pos[0] + 1;
+            pos[pos[0]] = NORTH;
         }
     }
-    return pos
+    return pos;
 }
 
 
 
-function drawSquare(squareX,squareY,squareCode){
+function drawSquare(squareX,squareY,squareCode){//thanks @alkisg
     var c = document.getElementById("mycanvas");
     var ctx = c.getContext("2d");
     var gWidth = 42.6;//must be the scaling
@@ -76,115 +76,27 @@ function drawSquare(squareX,squareY,squareCode){
     ctx.setLineDash([3]);
     ctx.strokeRect(squareX,squareY,gWidth,gHeight);
     ctx.lineWidth = 3;
-    switch(squareCode){
-        case 1: ctx.setLineDash([]); 
-                ctx.beginPath(); 
-                ctx.moveTo(squareX,squareY+gHeight);
-                ctx.lineTo(squareX+gWidth,squareY+gHeight);
-                ctx.stroke();
-                break;
-        case 2: ctx.setLineDash([]);
-                ctx.beginPath();
-                ctx.moveTo(squareX,squareY);
-                ctx.lineTo(squareX,squareY+gHeight);
-                ctx.stroke();
-                break;
-        case 3: ctx.setLineDash([]);
-                ctx.moveTo(squareX,squareY);
-                ctx.lineTo(squareX,squareY+gHeight);
-                ctx.lineTo(squareX+gWidth,squareY+gHeight);
-                ctx.stroke();
-                break;
-        case 4: ctx.setLineDash([]);
-                ctx.moveTo(squareX,squareY);
-                ctx.lineTo(squareX+gWidth,squareY);
-                ctx.stroke();
-                break;
-        case 5: ctx.setLineDash([]);
-                ctx.moveTo(squareX,squareY);
-                ctx.lineTo(squareX+gWidth,squareY);
-                ctx.moveTo(squareX,squareY+gHeight);
-                ctx.lineTo(squareX+gWidth,squareY+gHeight);
-                ctx.stroke();
-                break;
-        case 6: ctx.setLineDash([]);
-                ctx.moveTo(squareX,squareY);
-                ctx.lineTo(squareX+gWidth,squareY);
-                ctx.moveTo(squareX,squareY);
-                ctx.lineTo(squareX,squareY+gHeight);
-                ctx.stroke();
-                break;
-        case 7: ctx.setLineDash([]);
-                ctx.moveTo(squareX,squareY);
-                ctx.lineTo(squareX+gWidth,squareY);
-                ctx.moveTo(squareX,squareY);
-                ctx.lineTo(squareX,squareY+gHeight);
-                ctx.moveTo(squareX,squareY+gHeight);
-                ctx.lineTo(squareX+gWidth,squareY+gHeight);
-                ctx.stroke();
-                break;
-        case 8: ctx.setLineDash([]);
-                ctx.moveTo(squareX+gWidth,squareY);
-                ctx.lineTo(squareX+gWidth,squareY+gHeight);
-                ctx.stroke();
-                break;
-        case 9: ctx.setLineDash([]);
-                ctx.moveTo(squareX+gWidth,squareY);
-                ctx.lineTo(squareX+gWidth,squareY+gHeight);
-                ctx.moveTo(squareX,squareY+gHeight);
-                ctx.lineTo(squareX+gWidth,squareY+gHeight);
-                ctx.stroke();
-                break;
-        case 10:ctx.setLineDash([]);
-                ctx.moveTo(squareX+gWidth,squareY);
-                ctx.lineTo(squareX+gWidth,squareY+gHeight);
-                ctx.moveTo(squareX,squareY);
-                ctx.lineTo(squareX,squareY+gHeight);
-                ctx.stroke();
-                break;
-        case 11:ctx.setLineDash([]);
-                ctx.moveTo(squareX+gWidth,squareY);
-                ctx.lineTo(squareX+gWidth,squareY+gHeight);
-                ctx.moveTo(squareX,squareY);
-                ctx.lineTo(squareX,squareY+gHeight);
-                ctx.lineTo(squareX+gWidth,squareY+gHeight);
-                ctx.stroke();
-                break;
-        case 12:ctx.setLineDash([]);
-                ctx.moveTo(squareX+gWidth,squareY);
-                ctx.lineTo(squareX+gWidth,squareY+gHeight);
-                ctx.moveTo(squareX,squareY);
-                ctx.lineTo(squareX+gWidth,squareY);
-                ctx.stroke();
-                break;
-        case 13:ctx.setLineDash([]);
-                ctx.moveTo(squareX+gWidth,squareY);
-                ctx.lineTo(squareX+gWidth,squareY+gHeight);
-                ctx.moveTo(squareX,squareY);
-                ctx.lineTo(squareX+gWidth,squareY);
-                ctx.moveTo(squareX,squareY+gHeight);
-                ctx.lineTo(squareX+gWidth,squareY+gHeight);
-                ctx.stroke();
-                break;
-        case 14:ctx.setLineDash([]);
-                ctx.moveTo(squareX+gWidth,squareY);
-                ctx.lineTo(squareX+gWidth,squareY+gHeight);
-                ctx.moveTo(squareX,squareY);
-                ctx.lineTo(squareX+gWidth,squareY);
-                ctx.moveTo(squareX,squareY);
-                ctx.lineTo(squareX,squareY+gHeight);
-                ctx.stroke();
-                break;
-        case 15:ctx.setLineDash([]);
-                ctx.beginPath();
-                ctx.strokeRect(squareX,squareY,gWidth,gHeight);
-                ctx.stroke();
-                break;
-
+    ctx.setLineDash([]);
+    ctx.beginPath();
+    if (squareCode & 1) {
+        ctx.moveTo(squareX,squareY+gHeight);
+        ctx.lineTo(squareX+gWidth,squareY+gHeight);
+    }
+    if (squareCode & 2) {
+        ctx.moveTo(squareX,squareY);
+        ctx.lineTo(squareX,squareY+gHeight);
+    }
+    if (squareCode & 4) {
+        ctx.moveTo(squareX,squareY);
+        ctx.lineTo(squareX+gWidth,squareY);
+    }
+    if (squareCode & 8) {
+        ctx.moveTo(squareX+gWidth,squareY);
+        ctx.lineTo(squareX+gWidth,squareY+gHeight);
     }
     ctx.stroke();
+    ctx.closePath();
 }
-
 
 function generateMaze(x, y) {
     g.maze[getId(x, y)] = g.maze[getId(x, y)] + SET;
