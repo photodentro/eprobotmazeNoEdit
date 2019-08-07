@@ -158,6 +158,8 @@ function deleteProgram(){
          ge('cell'+cell.toString()+idSuffix[i]).style.display = 'none';
     }    
   }
+  act.selected = -1;
+  act.cmdExec = 0;
 }
 
 function deleteCommand(cmdNum){
@@ -540,11 +542,25 @@ function init(){
     act.level = (act.level+1)%5;
     ge('level').innerHTML = act.level + 1;
     newMaze(act.level);
+    act.position = [0,4];
+    act.direction = FD;
+    setSquare();
+    setOrientation();
+    deleteProgram();
+    highlightCommand(-1);
+
   };
   ge('bar_previous').onclick = function(){
     act.level = (act.level+4)%5;
     ge('level').innerHTML = act.level + 1;
     newMaze(act.level);
+    act.position = [0,4];
+    act.direction = FD;
+    setSquare();
+    setOrientation();
+    deleteProgram();
+    highlightCommand(-1);
+
   };
 
   ge('help').onclick = onHelpHide;
