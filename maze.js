@@ -134,7 +134,7 @@ function generateMaze(x, y) {
 }
 
 
-function canvasDraw(){
+function newMaze(level){
     c = document.getElementById('mycanvas');
     ctx = c.getContext("2d");
     ctx.clearRect(0,0,c.width,c.height);
@@ -178,10 +178,18 @@ function canvasDraw(){
     recursiveSolve(0,0);
     g.positions = [];
     g.cmds = pathtoCommands(path);
-    console.log(g.cmds.length,g.positions.length);   
-    ge('exit').style.marginLeft = sformat('{}em',g.positions[10].x*6);
-    ge('exit').style.marginTop = sformat('-{}em',(g.positions[10].y+1)*6);
-
+    switch(level){
+        case 0: pIndex = 4+Math.floor(Math.random()*4); break;
+        case 1: pIndex = 8+Math.floor(Math.random()*4); break;
+        case 2: pIndex = 12+Math.floor(Math.random()*4); break;
+        case 3: pIndex = 16+Math.floor(Math.random()*4); break;    
+    }
+    if (pIndex > g.positions.length-1){
+        pIndex = g.positions.length-1;
+    }
+   
+    ge('exit').style.marginLeft = sformat('{}em',g.positions[pIndex].x*6);
+    ge('exit').style.marginTop = sformat('{}em',(4-g.positions[pIndex].y)*6);
 }
 
 

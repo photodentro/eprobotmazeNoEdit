@@ -217,6 +217,7 @@ body {
   text-align:left;
 }
 #eprobot{
+  position:absolute;
   display:block;
 	width:6em;
 	height:6em;
@@ -224,6 +225,7 @@ body {
 	margin-top:0em;
 }
 #exit{
+  position:absolute;
   display:block;
   width:6em;
   height:6em;

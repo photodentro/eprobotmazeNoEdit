@@ -464,6 +464,7 @@ function restart(){
       play: false,//play means that the program is executed but may be it is paused
       pause: false,
       selected: -1,
+      level: 0,
     }
     setOrientation();
     setSquare();
@@ -535,6 +536,17 @@ function init(){
   document.body.onresize = onResize;
   ge('bar_home').onclick = onHome;
   ge('bar_help').onclick = onHelp;
+  ge('bar_next').onclick = function(){
+    act.level = (act.level+1)%5;
+    ge('level').innerHTML = act.level + 1;
+    newMaze(act.level);
+  };
+  ge('bar_previous').onclick = function(){
+    act.level = (act.level+4)%5;
+    ge('level').innerHTML = act.level + 1;
+    newMaze(act.level);
+  };
+
   ge('help').onclick = onHelpHide;
   ge('bar_about').onclick = onAbout;
   ge('bar_fullscreen').onclick = onFullScreen;
@@ -578,9 +590,20 @@ function init(){
 
   ge('newmaze').addEventListener('click',function(){
     //canvasDraw();
-    canvasDraw();
+    newMaze(act.level);
+    act.position = [0,4];
+    act.direction = FD;
+    setSquare();
+    setOrientation();
+    deleteProgram();
+
   });
-  canvasDraw();
+  newMaze(act.level);
+  act.position = [0,4];
+  act.direction = FD;
+  setSquare();
+  setOrientation();
+  deleteProgram();
 }
 
 window.onerror = onError;
@@ -588,7 +611,7 @@ window.onload = init;
 // Call onResize even before the images are loaded
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', onResize);
-} else {  // DOMContentLoaded` already fired
+} else {  // DOMContentLoaded already fired
   onResize();
 }
 
