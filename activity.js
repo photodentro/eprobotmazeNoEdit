@@ -95,6 +95,13 @@ function onFullScreen(event) {
   }
 }
 
+function setAnimation(eleName,aniName,aniDur){
+  /* Code for Chrome, Safari, and Opera */
+  ge(eleName).classList.add(aniName);
+  ge(eleName).style.animationName = aniName;
+  ge(eleName).style.animationDuration = aniDur;
+}
+
 //--------------------------------------END OF VISUAL----------------------------
 //--------------------------------------START LOGIC------------------------------
 const FD = 0
@@ -304,6 +311,10 @@ function animationSi(startPos,endPos,hor){
           ge('eprobot').style.marginTop = sformat("{}em",endPos);
         }
         clearInterval(inter);
+        if (act.position[0] == act.exit[0] && act.position[1] == act.exit[1]){
+          setAnimation('exit','success','2s');
+          setTimeout(onMenuNext,2000);
+        }
         if (act.cmdExec < act.program.length){
           act.cmdExec += 1
           setTimeout(nextCommand,100);
@@ -455,6 +466,7 @@ function nextCommand(){
       break;
     }
   }
+  
 }
 
 function restart(){
@@ -527,20 +539,10 @@ function runFast(currentCommand){
 }
 
 
-
-function init(){
-  // Internal level number is zero-based; but we display it as 1-based.
-  // We allow/fix newLevel if it's outside its proper range.
-  onResize();
-  // Create a <style> element for animations, to avoid CORS issues on Chrome
-  // TODO: dynamically? document.head.appendChild(document.createElement('style'));
-  // Install event handlers
-  document.body.onresize = onResize;
-  ge('bar_home').onclick = onHome;
-  ge('bar_help').onclick = onHelp;
-  ge('bar_next').onclick = function(){
+function onMenuNext(){
     act.level = (act.level+1)%5;
     ge('level').innerHTML = act.level + 1;
+    setAnimation('exit','reset','0s');
     newMaze(act.level);
     act.position = [0,4];
     act.direction = FD;
@@ -550,9 +552,25 @@ function init(){
     highlightCommand(-1);
 
   };
+
+
+function init(){
+  // Internal level number is zero-based; but we display it as 1-based.
+  // We allow/fix newLevel if it's outside its proper range.
+  onResize();
+  // Create a <style> element for animations, to avoid CORS issues on Chrome
+  // TODO: dynamically? document.head.appendChild(document.createElement('style'));
+  // Install event handlers
+  
+  document.body.onresize = onResize;
+  ge('bar_home').onclick = onHome;
+  ge('bar_help').onclick = onHelp;
+  ge('bar_next').onclick = onMenuNext;
+
   ge('bar_previous').onclick = function(){
     act.level = (act.level+4)%5;
     ge('level').innerHTML = act.level + 1;
+    setAnimation('exit','reset','0s');
     newMaze(act.level);
     act.position = [0,4];
     act.direction = FD;
@@ -612,6 +630,7 @@ function init(){
 
   ge('newmaze').addEventListener('click',function(){
     //canvasDraw();
+    setAnimation('exit','reset','0s');
     newMaze(act.level);
     act.position = [0,4];
     act.direction = FD;
@@ -620,6 +639,7 @@ function init(){
     deleteProgram();
     highlightCommand(-1);
   });
+  setAnimation('exit','reset','0s');
   newMaze(act.level);
   act.position = [0,4];
   act.direction = FD;

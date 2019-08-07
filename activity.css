@@ -305,5 +305,21 @@ body {
   -webkit-filter: drop-shadow(0.5em 0.5em 0.5em rgb(80,80,80));
   filter: drop-shadow(0.5em 0.5em 0.5em rgb(80,80,80));
   font-size: 2em;
+  z-index: 1000;
 }
 
+@keyframes success {
+     0%   {transform: scale(5.0);
+           margin-top: 12em;
+           margin-left: 18em;
+           z-index: 100;}
+     100% {transform: scale(1);
+           margin-top: 12em;
+           margin-left: 18em;
+           z-index:100;}
+}
+
+@keyframes reset {
+     0%   {transform: rotateY(0deg);}
+   100% {transform: rotateY(0deg);}  
+}

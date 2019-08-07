@@ -189,9 +189,9 @@ function newMaze(level){
     if (pIndex > g.positions.length-1){
         pIndex = g.positions.length-1;
     }
-   
-    ge('exit').style.marginLeft = sformat('{}em',g.positions[pIndex].x*6);
-    ge('exit').style.marginTop = sformat('{}em',(4-g.positions[pIndex].y)*6);
+    act.exit = [g.positions[pIndex].x,4-g.positions[pIndex].y];
+    ge('exit').style.marginLeft = sformat('{}em',act.exit[0]*6);
+    ge('exit').style.marginTop = sformat('{}em',act.exit[1]*6);
 }
 
 
