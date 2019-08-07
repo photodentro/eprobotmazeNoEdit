@@ -141,13 +141,19 @@ function canvasDraw(){
     }
     
     // Generate g.maze 
+    
     generateMaze(Math.floor(Math.random() * mazeColumns),
              Math.floor(Math.random() * mazeRows));
-
+    
     // Remove set 
     for (var id = 0; id < mazeColumns * mazeRows; ++id) {
         g.maze[id] = g.maze[id] ^ SET
     }
+
+    //debug
+    g.maze = [3,13,7,5,1,5,9,10,3,5,5,12,11,10,6,12,3,5,5,4,12,3,9,10,3,9,7,9,14,6,4,12,6,5,12];
+    
+    consoleMaze();
     for (var i=0; i<mazeColumns; i++)
     {
         for (var j=0; j<mazeRows; j++){
@@ -155,3 +161,17 @@ function canvasDraw(){
         }
     }
 }
+
+function consoleMaze(){
+/*    
+const NORTH = 1
+const WEST = 2
+const SOUTH = 4
+const EAST = 8
+const SET = 16
+
+EAST SOUTH WEST NORTH
+*/
+console.log(g.maze./*slice(0,7).*/join(","));
+}
+

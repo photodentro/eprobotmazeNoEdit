@@ -366,7 +366,8 @@ function animationAn(startAngle,endAngle,clock){
 }
 
 function moveUp(){
-  if (act.position[1] > 0){
+  //maze is drawn upside down so
+  if (act.position[1] > 0 && canMove(SOUTH)){
     animationSi(act.position[1]*6,(--act.position[1])*6,false);
   }
   else{
@@ -374,7 +375,7 @@ function moveUp(){
   }
 }
 function moveDown(){
-  if (act.position[1] < 4){
+  if (act.position[1] < 4 && canMove(NORTH)){
     animationSi(act.position[1]*6,(++act.position[1])*6,false);
   }
   else{
@@ -382,7 +383,7 @@ function moveDown(){
   }
 }
 function moveRight(){
-  if (act.position[0] < 6){//grid is 6 cells wide
+  if (act.position[0] < 6 && canMove(EAST)){//grid is 6 cells wide
     animationSi(act.position[0]*6,(++act.position[0])*6,true);
   }
   else{
@@ -390,12 +391,18 @@ function moveRight(){
   }
 }
 function moveLeft(){
- if (act.position[0] > 0){
+ if (act.position[0] > 0 && canMove(WEST)){
     animationSi(act.position[0]*6,(--act.position[0])*6,true);
   } 
   else{
     animationNo(act.position[0]*6,false,true);
   }
+}
+
+function canMove(d){
+  //direction is NORTH,SOUTH,WEST,EAST
+  return(!(g.maze[getId(act.position[0],4-act.position[1])]&d));
+      
 }
 
 function nextCommand(){
@@ -414,6 +421,7 @@ function nextCommand(){
       act.orientation = FD;
       act.selected = -1;
     }
+
     switch (cmdCode){
       case FD:
         switch (act.orientation){
@@ -486,18 +494,18 @@ function runFast(currentCommand){
       switch (act.program[i]){
         case FD:
           switch (act.orientation){
-            case FD: if (act.position[1]>0) act.position[1]--; break;
-            case RT: if (act.position[0]<6) act.position[0]++; break;//grid is 6 cells wide
-            case LT: if (act.position[0]>0) act.position[0]--; break;
-            case BK: if (act.position[1]<4) act.position[1]++; break;
+            case FD: if (act.position[1]>0 && canMove(SOUTH)) act.position[1]--; break;
+            case RT: if (act.position[0]<6 && canMove(EAST)) act.position[0]++; break;//grid is 6 cells wide
+            case LT: if (act.position[0]>0 && canMove(WEST)) act.position[0]--; break;
+            case BK: if (act.position[1]<4 && canMove(NORTH)) act.position[1]++; break;
           }
         break;
         case BK:
           switch (act.orientation){
-            case FD: if (act.position[1]<4) act.position[1]++; break;
-            case RT: if (act.position[0]>0) act.position[0]--; break;
-            case LT: if (act.position[0]<6) act.position[0]++; break;//grid is 6 cells wide
-            case BK: if (act.position[1]>0) act.position[1]--; break;
+            case FD: if (act.position[1]<4 && canMove(NORTH)) act.position[1]++; break;
+            case RT: if (act.position[0]>0 && canMove(WEST)) act.position[0]--; break;
+            case LT: if (act.position[0]<6 && canMove(EAST)) act.position[0]++; break;//grid is 6 cells wide
+            case BK: if (act.position[1]>0 && canMove(SOUTH)) act.position[1]--; break;
           }    
         break;
         case RT:
