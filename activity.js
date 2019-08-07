@@ -516,7 +516,7 @@ function runFast(currentCommand){
         break;
       }
     }
-      setSquare();
+    setSquare();
     setOrientation();
     act.cmdExec = i;
     highlightCommand(i-1);
@@ -581,7 +581,6 @@ function init(){
     canvasDraw();
   });
   canvasDraw();
-
 }
 
 window.onerror = onError;

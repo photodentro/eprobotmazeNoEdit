@@ -199,6 +199,7 @@ body {
   margin-right:0.5em;
   height: 30.1em;
   width:42em;
+  z-index: 1;
 }
 #mycanvas{
   background-color:white;
@@ -208,6 +209,7 @@ body {
   margin-right:0.5em;
   height: 30.1em;
   width:42em;
+  z-index: 0;
 }
 #grid{
 	width:100%;
@@ -215,12 +217,19 @@ body {
   text-align:left;
 }
 #eprobot{
+  display:block;
 	width:6em;
 	height:6em;
 	margin-left:0em;
 	margin-top:0em;
 }
-
+#exit{
+  display:block;
+  width:6em;
+  height:6em;
+  margin-left:0em;
+  margin-top:0em;
+}
 
 @-webkit-keyframes menubar_animation {
   from { left: -30em; }

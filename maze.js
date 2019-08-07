@@ -8,7 +8,11 @@ const SOUTH = 4
 const EAST = 8
 const SET = 16
 
-var g = {maze:[]};
+var g = {maze:[], cmds:[], positions:[]};
+var solved;
+var visited;
+var path;
+var endX, endY;
 
 function check(x, y) {
     if (g.maze[getId(x, y)] & SET)
@@ -150,28 +154,127 @@ function canvasDraw(){
         g.maze[id] = g.maze[id] ^ SET
     }
 
-    //debug
-    g.maze = [3,13,7,5,1,5,9,10,3,5,5,12,11,10,6,12,3,5,5,4,12,3,9,10,3,9,7,9,14,6,4,12,6,5,12];
+    /*debug
+    g.maze = [3,13,7,5,1,5,9,10,3,5,5,12,11,10,6,12,3,5,5,4,12,3,9,10,3,9,7,9,14,6,4,12,6,5,12];*/
     
-    consoleMaze();
     for (var i=0; i<mazeColumns; i++)
     {
         for (var j=0; j<mazeRows; j++){
             drawSquare(i*42.6,120-j*30,g.maze[getId(i,j)]);
         }
     }
+
+    //that's the door x,y in the original
+    endX = 6;
+    endY = 4;
+    solved = false;
+
+    visited = [];
+    for (var id = 0; id < mazeColumns * mazeRows; ++id) {
+       visited[id] = false;
+    }
+    path = [];
+
+    recursiveSolve(0,0);
+    g.positions = [];
+    g.cmds = pathtoCommands(path);
+    console.log(g.cmds.length,g.positions.length);   
+    ge('exit').style.marginLeft = sformat('{}em',g.positions[10].x*6);
+    ge('exit').style.marginTop = sformat('-{}em',(g.positions[10].y+1)*6);
+
 }
 
-function consoleMaze(){
-/*    
-const NORTH = 1
-const WEST = 2
-const SOUTH = 4
-const EAST = 8
-const SET = 16
 
-EAST SOUTH WEST NORTH
-*/
-console.log(g.maze./*slice(0,7).*/join(","));
+
+function addToPath(cx,cy){
+    path.unshift({x:cx,y:cy});
 }
+function recursiveSolve(x, y) {
+    if ((x == endX) && (y == endY)){
+        addToPath(x,y);
+        return(true); // If you reached the end
+    } 
+    if (visited[getId(x,y)]){
+        return(false);
+    }
+    visited[getId(x,y)] = true;
+    if ((x != 0) && ((g.maze[getId(x,y)] & WEST) == 0)){ // Checks if i can go left
+        if (recursiveSolve(x-1, y)) { // Recalls method one to the left
+            addToPath(x,y);
+            return(true);
+        }
+    }
+    if ((x != mazeColumns - 1) && ((g.maze[getId(x,y)] & EAST) == 0)){ // Checks if i can go right
+        if (recursiveSolve(x+1, y)) { // Recalls method one to the right
+            addToPath(x,y);
+            return(true);
+        }
+    }
+    if ((y != 0) && ((g.maze[getId(x,y)] & NORTH) ==0)) { // Checks if i can go up
+        if (recursiveSolve(x, y-1)) { // Recalls method one up
+            addToPath(x,y);
+            return(true);
+        }
+    }
+    if ((y != mazeRows - 1) && ((g.maze[getId(x,y)] & SOUTH)==0)){ // Checks if i can go down
+        if (recursiveSolve(x, y+1)) { // Recalls method one down
+            addToPath(x,y);
+            return(true);
+        }
+    }
+    return false;
+}
+
+function pathtoCommands(p){
+    cmds = [];
+    //assume starting from (0,0) and looking up
+    direction = FD;
+    i=0;
+    while (i<p.length-1){
+        var diff = [p[i+1].x - p[i].x, p[i+1].y - p[i].y];
+        if ((diff[0] == 1) && (diff[1] == 0)){
+            switch (direction){
+                case FD: cmds.push('RT'); direction = RT; break;
+                case RT: cmds.push('FD'); i++; break;
+                case LT: cmds.push('RT'); direction = FD; break;
+                case BK: cmds.push('LT'); direction = RT; break;
+            }
+        }
+        if ((diff[0] == -1) && (diff[1] == 0)){
+            switch (direction){
+                case FD: cmds.push('LT'); direction = LT; break;
+                case RT: cmds.push('LT'); direction = BK; break;
+                case LT: cmds.push('FD'); i++; break;
+                case BK: cmds.push('RT'); direction = LT; break;
+            }
+        }
+        if ((diff[0] == 0) && (diff[1] == 1)){
+            switch (direction){
+                case FD: cmds.push('FD'); i++; break;
+                case RT: cmds.push('LT'); direction = FD; break;
+                case LT: cmds.push('RT'); direction = FD; break;
+                case BK: cmds.push('RT'); direction = LT; break;
+            }
+
+        }
+        if ((diff[0] == 0) && (diff[1] == -1)){
+            switch (direction){
+                case FD: cmds.push('RT'); direction = RT; break;
+                case RT: cmds.push('RT'); direction = BK; break;
+                case LT: cmds.push('LT'); direction = BK; break;
+                case BK: cmds.push('FD'); i++; break;
+            }
+
+        }
+        g.positions.push({x:p[i].x,y:p[i].y});
+    }
+    return(cmds);
+}
+
+
+
+
+
+
+
 
