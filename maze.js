@@ -74,10 +74,11 @@ function isPossible(x, y) {
 function drawSquare(squareX,squareY,squareCode){//thanks @alkisg
     var c = document.getElementById("mycanvas");
     var ctx = c.getContext("2d");
-    var gWidth = 42.6;//must be the scaling
+    var gWidth = 42.3;//must be the scaling
     var gHeight = 30;
     ctx.lineWidth = 0.2;
     ctx.setLineDash([3]);
+    ctx.beginPath();
     ctx.strokeRect(squareX,squareY,gWidth,gHeight);
     ctx.lineWidth = 3;
     ctx.setLineDash([]);

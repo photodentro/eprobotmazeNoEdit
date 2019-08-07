@@ -292,6 +292,7 @@ body {
   height: 100%;
   top: 0;  /* IE and old webview ignore "fixed" for flex childs */
   left: 0;
+  z-index: 1000;
 }
 
 #help .dialog {
@@ -313,7 +314,7 @@ body {
            margin-top: 12em;
            margin-left: 18em;
            z-index: 100;}
-     100% {transform: scale(1);
+     100% {transform: scale(0.7);
            margin-top: 12em;
            margin-left: 18em;
            z-index:100;}

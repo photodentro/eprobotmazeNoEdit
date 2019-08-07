@@ -315,9 +315,11 @@ function animationSi(startPos,endPos,hor){
           setAnimation('exit','success','2s');
           setTimeout(onMenuNext,2000);
         }
+        else{
         if (act.cmdExec < act.program.length){
           act.cmdExec += 1
           setTimeout(nextCommand,100);
+          }
         }
       }
       else{
@@ -470,16 +472,14 @@ function nextCommand(){
 }
 
 function restart(){
-    act = {
-      program: [],
-      position: [0,4],
-      orientation: FD,
-      cmdExec: 0,
-      play: false,//play means that the program is executed but may be it is paused
-      pause: false,
-      selected: -1,
-      level: 0,
-    }
+    act.program = [];
+    act.position = [0,4];
+    act.orientation = FD;
+    act.cmdExec = 0;
+    act.play = false;//play means that the program is executed but may be it is pause
+    act.pause = false;
+    act.selected = -1;
+    act.level = 0;
     setOrientation();
     setSquare();
     deleteProgram();
@@ -545,12 +545,12 @@ function onMenuNext(){
     setAnimation('exit','reset','0s');
     newMaze(act.level);
     act.position = [0,4];
-    act.direction = FD;
+    act.orientation = FD;
     setSquare();
     setOrientation();
     deleteProgram();
     highlightCommand(-1);
-
+    act.play = false;
   };
 
 
@@ -657,6 +657,3 @@ if (document.readyState === 'loading') {
 } else {  // DOMContentLoaded already fired
   onResize();
 }
-
-
-
