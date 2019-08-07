@@ -585,7 +585,13 @@ function init(){
       stop();
   });
   for (let i=0; i<allCommands; i++){
-    ge('cell'+i.toString()).onclick = function(){runFast(i); act.selected = i; console.log(act.selected);};
+    ge('cell'+i.toString()).onclick = function(){
+      if (i<act.program.length){
+        runFast(i); 
+        act.selected = i; 
+        console.log(act.selected);
+      }
+    };
   }
 
   ge('newmaze').addEventListener('click',function(){
@@ -596,7 +602,7 @@ function init(){
     setSquare();
     setOrientation();
     deleteProgram();
-
+    highlightCommand(-1);
   });
   newMaze(act.level);
   act.position = [0,4];
@@ -604,6 +610,7 @@ function init(){
   setSquare();
   setOrientation();
   deleteProgram();
+  highlightCommand(-1);
 }
 
 window.onerror = onError;

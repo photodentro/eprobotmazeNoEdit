@@ -179,10 +179,12 @@ function newMaze(level){
     g.positions = [];
     g.cmds = pathtoCommands(path);
     switch(level){
-        case 0: pIndex = 4+Math.floor(Math.random()*4); break;
-        case 1: pIndex = 8+Math.floor(Math.random()*4); break;
-        case 2: pIndex = 12+Math.floor(Math.random()*4); break;
-        case 3: pIndex = 16+Math.floor(Math.random()*4); break;    
+        case 0: pIndex = 2+Math.floor(Math.random()*2); break;
+        case 1: pIndex = 4+Math.floor(Math.random()*4); break;
+        case 2: pIndex = 8+Math.floor(Math.random()*4); break;
+        case 3: pIndex = 12+Math.floor(Math.random()*4); break;
+        case 4: pIndex = 16+Math.floor(Math.random()*4); break;    
+        default: alert("hi");
     }
     if (pIndex > g.positions.length-1){
         pIndex = g.positions.length-1;
