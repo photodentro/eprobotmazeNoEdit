@@ -171,7 +171,9 @@ function deleteProgram(){
 
 function deleteCommand(cmdNum){
   var idSuffix = ['fd','rt','bk','lt'];
-  act.program.splice(cmdNum,1);
+
+  act.program.splice(cmdNum,1);//delete command
+  //show new program
   for (var cell=0; cell<act.program.length; cell++){
   	showCommand(act.program[cell],cell);
   }
@@ -186,16 +188,8 @@ function deleteCommand(cmdNum){
   	act.cmdExec = cmdNum-1;
   	act.selected = cmdNum-1;
   }
-  else{//go to start without deleting the program
-	act.position = [0,4];
-	act.orientation = FD;
-	act.cmdExec =  0;
-	act.play = false;
-	act.pause = false;
-	act.selected = -1;
-    setOrientation();
-    setSquare();
-  	highlightCommand(-1);
+  else{
+    stop();
   }
 }
 
@@ -382,7 +376,7 @@ function animationAn(startAngle,endAngle,clock){
 
 function moveUp(){
   //maze is drawn upside down so
-  if (act.position[1] > 0 && canMove(SOUTH)){
+  if (act.position[1] > 0 && canMove(SOUTH)){//maze is drawn in inverse
     animationSi(act.position[1]*6,(--act.position[1])*6,false);
   }
   else{
@@ -538,9 +532,7 @@ function runFast(currentCommand){
   }
 }
 
-
-function onMenuNext(){
-    act.level = (act.level+1)%5;
+function initLevel(){
     ge('level').innerHTML = act.level + 1;
     setAnimation('exit','reset','0s');
     newMaze(act.level);
@@ -551,6 +543,12 @@ function onMenuNext(){
     deleteProgram();
     highlightCommand(-1);
     act.play = false;
+  }
+
+
+function onMenuNext(){
+    act.level = (act.level+1)%5;
+    initLevel();
   };
 
 
@@ -569,15 +567,7 @@ function init(){
 
   ge('bar_previous').onclick = function(){
     act.level = (act.level+4)%5;
-    ge('level').innerHTML = act.level + 1;
-    setAnimation('exit','reset','0s');
-    newMaze(act.level);
-    act.position = [0,4];
-    act.direction = FD;
-    setSquare();
-    setOrientation();
-    deleteProgram();
-    highlightCommand(-1);
+    initLevel();
 
   };
 
@@ -630,23 +620,9 @@ function init(){
 
   ge('newmaze').addEventListener('click',function(){
     //canvasDraw();
-    setAnimation('exit','reset','0s');
-    newMaze(act.level);
-    act.position = [0,4];
-    act.direction = FD;
-    setSquare();
-    setOrientation();
-    deleteProgram();
-    highlightCommand(-1);
+    initLevel();
   });
-  setAnimation('exit','reset','0s');
-  newMaze(act.level);
-  act.position = [0,4];
-  act.direction = FD;
-  setSquare();
-  setOrientation();
-  deleteProgram();
-  highlightCommand(-1);
+  initLevel();
 }
 
 window.onerror = onError;
