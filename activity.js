@@ -139,20 +139,11 @@ function highlightCommand(i){
 function bindCommand(cmdName,cmdCode){
   ge(cmdName).onclick = function(event){
     if (!act.play){//only add command if not in play
-    if (act.selected==-1){
       if (act.program.length<allCommands){
         cell = act.program.length;
         showCommand(cmdCode,cell);
         act.program.push(cmdCode);
       }
-    }
-    else{
-    	cell = act.selected + 1;
-    	act.program.splice(cell,0,cmdCode);//insert cmdCode in index cell
-    	for (var i=cell; i<act.program.length; i++){
-    		showCommand(act.program[i],i);
-    	}
-    }
   }
 }
 }
@@ -595,15 +586,7 @@ function init(){
     }
   });
   
-  ge('cdelete').addEventListener('click',function(){
-  	console.log(act.selected);
-  	if (act.selected==-1){
-  		restart();
-  	}
-  	else{
-  		deleteCommand(act.selected);
-  	}
-  });
+  ge('cdelete').addEventListener('click',restart);
 
   ge('cstop').addEventListener('click',function(){
       stop();
