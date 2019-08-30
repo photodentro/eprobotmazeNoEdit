@@ -298,7 +298,8 @@ function animationSi(startPos,endPos,hor){
         clearInterval(inter);
         if (act.position[0] == act.exit[0] && act.position[1] == act.exit[1]){
           setAnimation('exit','success','2s');
-          setTimeout(onMenuNext,2000);
+          setTimeout(function(){setAnimation('exit','reset','0s'); stop();},2100);
+          /*setTimeout(onMenuNext,2000);*/
         }
         else{
         if (act.cmdExec < act.program.length){
@@ -526,7 +527,7 @@ function runFast(currentCommand){
 function initLevel(){
     ge('level').innerHTML = act.level + 1;
     setAnimation('exit','reset','0s');
-    newMaze(act.level);
+    newLevel(act.level);
     act.position = [0,4];
     act.orientation = FD;
     setSquare();
@@ -570,6 +571,8 @@ function init(){
   }
 
   restart();
+  newMaze();
+  ge('level').innerHTML = act.level + 1;
 
   bindCommand('cforward',FD);
   bindCommand('cbackward',BK);
@@ -596,14 +599,14 @@ function init(){
       if (i<act.program.length){
         runFast(i); 
         act.selected = i; 
-        console.log(act.selected);
       }
     };
   }
 
   ge('newmaze').addEventListener('click',function(){
     //canvasDraw();
-    initLevel();
+    newMaze();
+    ge('level').innerHTML = act.level + 1;
   });
   initLevel();
 }

@@ -135,7 +135,9 @@ function generateMaze(x, y) {
 }
 
 
-function newMaze(level){
+function newMaze(){
+    level = 0;
+    act.level = 0;
     c = document.getElementById('mycanvas');
     ctx = c.getContext("2d");
     ctx.clearRect(0,0,c.width,c.height);
@@ -192,6 +194,37 @@ function newMaze(level){
     act.exit = [g.positions[pIndex].x,4-g.positions[pIndex].y];
     ge('exit').style.marginLeft = sformat('{}em',act.exit[0]*6);
     ge('exit').style.marginTop = sformat('{}em',act.exit[1]*6);
+}
+
+
+function newLevel(level){
+    //that's the door x,y in the original
+    endX = 6;
+    endY = 4;
+    solved = false;
+
+    visited = [];
+    for (var id = 0; id < mazeColumns * mazeRows; ++id) {
+       visited[id] = false;
+    }
+    path = [];
+
+    recursiveSolve(0,0);
+    g.positions = [];
+    g.cmds = pathtoCommands(path);
+    switch(level){
+        case 0: pIndex = 2+Math.floor(Math.random()*2); break;
+        case 1: pIndex = 4+Math.floor(Math.random()*4); break;
+        case 2: pIndex = 8+Math.floor(Math.random()*4); break;
+        case 3: pIndex = 12+Math.floor(Math.random()*4); break;
+        case 4: pIndex = 16+Math.floor(Math.random()*4); break;    
+    }
+    if (pIndex > g.positions.length-1){
+        pIndex = g.positions.length-1;
+    }
+    act.exit = [g.positions[pIndex].x,4-g.positions[pIndex].y];
+    ge('exit').style.marginLeft = sformat('{}em',act.exit[0]*6);
+    ge('exit').style.marginTop = sformat('{}em',act.exit[1]*6);	
 }
 
 

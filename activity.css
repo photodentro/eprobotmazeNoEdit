@@ -77,7 +77,7 @@ body {
   display:inline-block;
   float:left;
   overflow: auto;
-  margin-left: 0.3em;
+  margin-left: 1em;
   width:10em;
   text-align:center;
 }
