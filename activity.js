@@ -1,5 +1,7 @@
 /*
-Copyright (C) 2019 Dimitris Nikolos <dnikolos@gmail.com>.
+Copyright (C) 2019 
+Alkis Georgopoulos <alkisg@gmail.com>,
+Dimitris Nikolos <dnikolos@gmail.com>.
 SPDX-License-Identifier: CC-BY-SA-4.0*/
 
 function onError(message, source, lineno, colno, error) {
@@ -69,10 +71,14 @@ function onHome(event) {
 
 function onHelp(event) {
   ge('help').style.display = 'flex';
+  ge('audiohelp').currentTime = 0;
+  ge('audiohelp').play();
+
 }
 
 function onHelpHide(event) {
   ge('help').style.display = '';
+  ge('audiohelp').pause();
 }
 
 function onAbout(event) {
@@ -94,7 +100,6 @@ function onFullScreen(event) {
     cancelFullScreen.call(doc);
   }
 }
-
 function setAnimation(eleName,aniName,aniDur){
   /* Code for Chrome, Safari, and Opera */
   ge(eleName).classList.add(aniName);
@@ -104,16 +109,35 @@ function setAnimation(eleName,aniName,aniDur){
 
 //--------------------------------------END OF VISUAL----------------------------
 //--------------------------------------START LOGIC------------------------------
-const FD = 0
-const RT = 1
-const BK = 2
-const LT = 3
+var maze = false;
+var levels = false;
+const FD = 0;
+const RT = 1;
+const BK = 2;
+const LT = 3;
+
+const UP = 0;
+const DN = 2; //down
+
+const NORTH = 1
+const WEST = 2
+const SOUTH = 4
+const EAST = 8
+const SET = 16
+
+const ENDOFPROGRAM = 0;
+const STOP = 1;
+const PLAYING = 2;
+const PAUSED = 3
+
+const idSuffix = ['fd','rt','bk','lt'];
+
 var act = {};
 var inter,inter1,inter2;
 
-const allCommands = 20;
+const allCommands = 30;
+
 function showCommand(cmdCode,cell){
-  var idSuffix = ['fd','rt','bk','lt'];
   for (var i=0; i<4; i++){//for all cmdCodes
     if (i==cmdCode){
       ge('cell'+cell.toString()+idSuffix[i]).style.display = '';
@@ -125,12 +149,30 @@ function showCommand(cmdCode,cell){
   }
 }
 
+function eraseCell(cell){
+    for (var i=0; i<4; i++){
+        ge('cell'+cell.toString()+idSuffix[i]).style.display = 'none';
+    }    
+}
+
+function drawProgram(){
+  for (var cell=0; cell<allCommands; cell++){
+  	if (cell<act.program.length){
+  		showCommand(act.program[cell],cell);
+  	}
+  	else{
+  		eraseCell(cell);
+  	}
+  }
+
+}
+
 function highlightCommand(i){
   //highlightCommand(-1) highlights none
   for (var cell = 0; cell<allCommands; cell++){
       ge('cell'+cell.toString()).classList.remove('cellHighlight');
     }
-  if (i!=-1){
+  if (i!=-1 && i<act.program.length){
     cell = i;
     ge('cell'+cell.toString()).classList.add('cellHighlight');
   }
@@ -138,55 +180,45 @@ function highlightCommand(i){
 
 function bindCommand(cmdName,cmdCode){
   ge(cmdName).onclick = function(event){
-    if (!act.play){//only add command if not in play
-      if (act.program.length<allCommands){
-        cell = act.program.length;
-        showCommand(cmdCode,cell);
-        act.program.push(cmdCode);
-      }
+    if (!act.play || (act.play && act.pause)){//only add command if not in play
+    	if (act.selected==-1 || (ge('cdelete1') == undefined)){//add to end
+      		if (act.program.length<allCommands){
+        		cell = act.program.length;
+        		act.program.push(cmdCode);
+        		showCommand(cmdCode,cell);
+      		}
+    	}
+    	else{
+    		cell = act.selected + 1;//add to next
+    		act.program.splice(cell,0,cmdCode);//insert cmdCode in index cell
+    		drawProgram();
+    	}
+  	}
   }
-}
 }
 
 function deleteProgram(){
   var idSuffix = ['fd','rt','bk','lt'];
+
   act.program = [];
-  for (var cell=act.program.length; cell<allCommands; cell++){
-    for (var i=0; i<4; i++){
-         ge('cell'+cell.toString()+idSuffix[i]).style.display = 'none';
-    }    
-  }
-  act.selected = -1;
-  act.cmdExec = 0;
+
+  drawProgram();
 }
 
 function deleteCommand(cmdNum){
-  var idSuffix = ['fd','rt','bk','lt'];
-
-  act.program.splice(cmdNum,1);//delete command
-  //show new program
-  for (var cell=0; cell<act.program.length; cell++){
-  	showCommand(act.program[cell],cell);
-  }
-  for (var cell=act.program.length; cell<allCommands; cell++){
-    for (var i=0; i<4; i++){
-         ge('cell'+cell.toString()+idSuffix[i]).style.display = 'none';
-    }    
-  }
-  if (cmdNum>0){
-  	highlightCommand(cmdNum-1);
-  	runFast(cmdNum-1);
-  	act.cmdExec = cmdNum-1;
-  	act.selected = cmdNum-1;
-  }
-  else{
-    stop();
-  }
+  	if (!act.play || (act.play && act.pause)){
+		var idSuffix = ['fd','rt','bk','lt'];
+		if (act.selected >= 0 && act.selected < act.program.length){
+			act.program.splice(act.selected,1);//delete command
+			drawProgram();
+			stop();
+		}
+	}
 }
 
 function setSquare(){
   ge('eprobot').style.marginTop = sformat('{}em',act.position[1]*6);
-  ge('eprobot').style.marginLeft = sformat('{}em',act.position[0]*6);
+  ge('eprobot').style.marginLeft = sformat('{}em',act.position[0]*6.1);
 }
 
 function setOrientation(){
@@ -196,6 +228,82 @@ function setOrientation(){
     case BK: ge('eprobot').style.transform = 'rotate(180deg)'; break;
     case LT: ge('eprobot').style.transform = 'rotate(270deg)'; break;
   }
+}
+
+
+function marginsToCanvas(){
+  //margins are in ems
+  point = {};
+  marginTop = parseInt(ge('eprobot').style.marginTop);
+  marginLeft = parseInt(ge('eprobot').style.marginLeft);
+  point.y = marginTop/6*30 + 15;
+  point.x = marginLeft/6*43 + 21.5;//must be the scaling
+  return(point);
+}
+
+function positionToCanvas(){
+  position = act.position;
+  point = {};
+  point.y = position[1]*30 + 15;
+  point.x = position[0]*43 + 21.5;
+  return(point);
+}
+
+
+function clearTrace(){
+  c = ge('mycanvas');
+  ctx = c.getContext('2d');
+  ctx.clearRect(0,0,c.width,c.height);
+  if (maze){
+  	drawMazeonCanvas();
+  }
+}
+
+function trace(startpoint,endpoint){
+
+  if (act.pencil){
+    c = ge('mycanvas');
+    ctx = c.getContext('2d');
+    ctx.setLineDash([]);
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.strokeRect(startpoint.x,startpoint.y,endpoint.x-startpoint.x,endpoint.y-startpoint.y);
+    ctx.stroke();
+    ctx.closePath();
+  }
+}
+
+function moveSteps(curStep,startPos,endPos,steps,hor,draw){
+	//returns true if move is done
+	startpoint = marginsToCanvas();
+	diff = (endPos-startPos)/steps;
+    if (Math.abs((startPos + curStep*diff - endPos)) < 0.01){
+      if (hor){
+        ge('eprobot').style.marginLeft = sformat("{}em",endPos);
+      }
+      else{
+        ge('eprobot').style.marginTop = sformat("{}em",endPos);
+      }
+      endpoint = marginsToCanvas();
+      if (draw){
+      	trace(startpoint,endpoint);
+      }
+      return(true);
+    }
+    else{
+      if (hor){
+        ge('eprobot').style.marginLeft = sformat("{}em",startPos + curStep*diff);
+      }
+      else{
+       ge('eprobot').style.marginTop = sformat("{}em",startPos + curStep*diff); 
+      }
+      endpoint = marginsToCanvas();
+      if (draw){
+      	trace(startpoint,endpoint);
+  	  }
+      return(false);
+  	}
+
 }
 
 
@@ -210,70 +318,34 @@ function animationNo(curPos,dir,hor){
   */
   var endPos;
   if (dir){
-    endPos = curPos + 3; //grid is 6em 3em is half block of grid
+    endPos = curPos + 1.5; //grid is 6em 1.5em is 1/4 of block of grid
   }
   else{
-    endPos = curPos - 3;
+    endPos = curPos - 1.5;
   }
   var startPos = curPos;
-  var diff = (endPos - startPos)/5;
-  let i=0; 
+  steps = 5;
+  let i = 0;
   inter1 = setInterval(function(){
-      if (act.play){
-        if (Math.abs((startPos + i*diff - endPos)) < 0.01){
-          if (hor){
-            ge('eprobot').style.marginLeft = sformat("{}em",endPos);
-          }
-          else{
-            ge('eprobot').style.marginTop = sformat("{}em",endPos);
-          }
-          clearInterval(inter1);
-        }
-        else{
-          if (hor){
-            ge('eprobot').style.marginLeft = sformat("{}em",startPos + i*diff);
-          }
-          else{
-           ge('eprobot').style.marginTop = sformat("{}em",startPos + i*diff); 
-          }
-          i++;
-      }
-    }
+  	if (moveSteps(i,startPos,endPos,steps,hor,false)){
+  		clearInterval(inter1);
+  	}
+  	else{
+  		i++;
+  	}
   },100);
   setTimeout(function(){
-  //go back
-  startPos = endPos;
-  endPos = curPos;
-  diff = (endPos - startPos) / 5;
-  inter2 = setInterval(function(){
-    if (act.play){
-      if (Math.abs((startPos + i*diff - endPos)) < 0.01){
-        if (hor){
-          ge('eprobot').style.marginLeft = sformat("{}em",endPos);
-        }
-        else{
-          ge('eprobot').style.marginTop = sformat("{}em",endPos);
-        }
-        clearInterval(inter2);
-        if (act.cmdExec < act.program.length){
-          act.cmdExec += 1
-          setTimeout(nextCommand,100);
-        }
-      }
-      else{
-        if (hor){
-          ge('eprobot').style.marginLeft = sformat("{}em",startPos + i*diff);
-        }
-        else{
-         ge('eprobot').style.marginTop = sformat("{}em",startPos + i*diff); 
-        }
-        i++;
-    }
-  }
-},100);
-},500);
-
-
+  	let i = 0;
+  	inter2 = setInterval(function(){
+  	if (moveSteps(i,endPos,startPos,steps,hor,false)){
+  		clearInterval(inter2);
+   		nextCommand();
+  	}
+  	else{
+  		i++;
+  	}
+  },100);
+  },500);
 }
 
 function animationSi(startPos,endPos,hor){
@@ -283,56 +355,38 @@ function animationSi(startPos,endPos,hor){
     when hor = true marginLeft
     when hor = false marginTop
   */
-
-  var diff = (endPos - startPos)/10;
-  let i=0; 
-  inter = setInterval(function(){
-    if (act.play){
-      if (Math.abs((startPos + i*diff - endPos)) < 0.01){
-        if (hor){
-          ge('eprobot').style.marginLeft = sformat("{}em",endPos);
-        }
-        else{
-          ge('eprobot').style.marginTop = sformat("{}em",endPos);
-        }
+  	steps = 10;
+  	let i = 0;
+  	inter = setInterval(function(){
+    if (moveSteps(i,startPos,endPos,steps,hor,true)){
         clearInterval(inter);
-        if (act.position[0] == act.exit[0] && act.position[1] == act.exit[1]){
-          setAnimation('exit','success','2s');
-          setTimeout(function(){setAnimation('exit','reset','0s'); stop();},2100);
-          /*setTimeout(onMenuNext,2000);*/
-        }
-        else{
-        if (act.cmdExec < act.program.length){
-          act.cmdExec += 1
-          setTimeout(nextCommand,100);
+        if (maze && ge('exit')){
+          if (act.position[0] == act.exit[0] && act.position[1] == act.exit[1]){
+            setAnimation('exit','success','2s');
+            setTimeout(function(){setAnimation('exit','reset','0s'); stop();},2100);
           }
         }
+        nextCommand();
       }
       else{
-        if (hor){
-          ge('eprobot').style.marginLeft = sformat("{}em",startPos + i*diff);
-        }
-        else{
-         ge('eprobot').style.marginTop = sformat("{}em",startPos + i*diff); 
-        }
-        i++;
-    }
-  }
-},100);
+      	i++;
+      }
+	},100);
 }
+
 function animationAn(startAngle,endAngle,clock){
   /*angle animation startAngle and endAngle are in FD,LT,RT,BK format*/
   var startAngleDeg,endAngleDeg;
   switch (startAngle){
-    case FD: startAngleDeg = 0; break;
+    case UP: startAngleDeg = 0; break;
     case RT: startAngleDeg = 90; break;
-    case BK: startAngleDeg = 180; break;
+    case DN: startAngleDeg = 180; break;
     case LT: startAngleDeg = 270; break;
   }
   switch (endAngle){
-    case FD: endAngleDeg = 0; break;
+    case UP: endAngleDeg = 0; break;
     case RT: endAngleDeg = 90; break;
-    case BK: endAngleDeg = 180; break;
+    case DN: endAngleDeg = 180; break;
     case LT: endAngleDeg = 270; break;
   }
   var diff;
@@ -345,30 +399,32 @@ function animationAn(startAngle,endAngle,clock){
 
   let i=0; 
   inter = setInterval(function(){
-      newAngle = startAngleDeg + i*diff;
-      if (Math.abs((360 + startAngleDeg + i*diff)%360 - endAngleDeg) < 0.01){
-        ge('eprobot').style.transform = sformat('rotate({}deg)',endAngleDeg);
-        clearInterval(inter);
-        if (act.cmdExec < act.program.length){
-          act.cmdExec += 1
-          setTimeout(nextCommand,100);
-        }
-        else{
-          highlightCommand(-1);
-          act.play = false;
-          act.selected = -1;
-        }
-      }
-      else{
-        ge('eprobot').style.transform = sformat('rotate({}deg)',startAngleDeg + i*diff);
-        i++;
+    newAngle = startAngleDeg + i*diff;
+    if (Math.abs((360 + startAngleDeg + i*diff)%360 - endAngleDeg) < 0.01){
+      ge('eprobot').style.transform = sformat('rotate({}deg)',endAngleDeg);
+      clearInterval(inter);
+      nextCommand();
+    }
+    else{
+      ge('eprobot').style.transform = sformat('rotate({}deg)',startAngleDeg + i*diff);
+      i++;
     }
   },100);
 }
 
+function canMove(d){
+  //direction is NORTH,SOUTH,WEST,EAST
+  if (maze){
+  	return(!(g.maze[getId(act.position[0],4-act.position[1])]&d));
+  }
+  else{
+  	return(true);//no obstacles if not in maze
+  }
+      
+}
+
 function moveUp(){
-  //maze is drawn upside down so
-  if (act.position[1] > 0 && canMove(SOUTH)){//maze is drawn in inverse
+  if (act.position[1] > 0 && canMove(SOUTH)){//maze is drawn upside down
     animationSi(act.position[1]*6,(--act.position[1])*6,false);
   }
   else{
@@ -376,7 +432,7 @@ function moveUp(){
   }
 }
 function moveDown(){
-  if (act.position[1] < 4 && canMove(NORTH)){
+  if (act.position[1] < 4 && canMove(NORTH)){//maze is drawn upside down
     animationSi(act.position[1]*6,(++act.position[1])*6,false);
   }
   else{
@@ -385,59 +441,94 @@ function moveDown(){
 }
 function moveRight(){
   if (act.position[0] < 6 && canMove(EAST)){//grid is 6 cells wide
-    animationSi(act.position[0]*6,(++act.position[0])*6,true);
+    animationSi(act.position[0]*6.1,(++act.position[0])*6.1,true);
   }
   else{
-    animationNo(act.position[0]*6,true,true);
+    animationNo(act.position[0]*6.1,true,true);
   }
 }
 function moveLeft(){
  if (act.position[0] > 0 && canMove(WEST)){
-    animationSi(act.position[0]*6,(--act.position[0])*6,true);
+    animationSi(act.position[0]*6.1,(--act.position[0])*6.1,true);
   } 
   else{
-    animationNo(act.position[0]*6,false,true);
+    animationNo(act.position[0]*6.1,false,true);
   }
 }
 
-function canMove(d){
-  //direction is NORTH,SOUTH,WEST,EAST
-  return(!(g.maze[getId(act.position[0],4-act.position[1])]&d));
-      
+function setProgramState(state,dir){
+	switch (state){
+		case PLAYING:
+			act.play = true;
+			act.pause = false;
+      if (ge('cdelete1')){
+			   ge('cdelete1').style.cursor = 'default';}
+			ge('cdelete').style.cursor = 'default';
+			ge('cpencil').style.cursor = 'default'
+			break;
+		case PAUSED:
+			act.play = true;
+			act.pause = true;
+			if (ge('cdelete1')){
+         ge('cdelete1').style.cursor = 'pointer';}
+			ge('cdelete').style.cursor = 'pointer';
+			ge('cpencil').style.cursor = 'pointer';
+			break;
+		case ENDOFPROGRAM:
+			highlightCommand(-1);
+			act.play = false;
+      		act.cmdExec = 0;
+      		act.position = [0,4];
+      		act.orientation = DIR;
+      		act.selected = -1;
+      		act.outofplace = true;
+			if (ge('cdelete1')){
+         ge('cdelete1').style.cursor = 'pointer';}
+			ge('cdelete').style.cursor = 'pointer';
+			ge('cpencil').style.cursor = 'pointer';
+      		break;
+      	case STOP:
+      		highlightCommand(-1);
+      		act.play = false;
+      		act.cmdExec = 0;
+      		act.position = [0,4];
+      		act.orientation = DIR;
+      		act.selected = -1;
+      		act.outofplace = false;
+      if (ge('cdelete1')){
+        ge('cdelete1').style.cursor = 'pointer';  
+      }
+			ge('cdelete').style.cursor = 'pointer';
+			ge('cpencil').style.cursor = 'pointer';
+      		break;
+	}
 }
 
-function nextCommand(){
-  if (act.play){
-    setSquare();
-    setOrientation();
-    cmdCode = act.program[act.cmdExec];
-    if (act.cmdExec<act.program.length)
-      {highlightCommand(act.cmdExec);
-      }
-    else{
-      highlightCommand(-1);
-      act.play = false;
-      act.cmdExec = 0;
-      act.position = [0,4];
-      act.orientation = FD;
-      act.selected = -1;
-    }
 
+function nextCommand(){
+  if (act.play && !act.pause){
+  	if (act.cmdExec == act.program.length){
+      setProgramState(ENDOFPROGRAM);
+  	  return(0);// end of program
+  	}
+    highlightCommand(act.cmdExec);
+    act.selectd = act.cmdExec;
+    cmdCode = act.program[act.cmdExec];
     switch (cmdCode){
       case FD:
         switch (act.orientation){
-          case FD: moveUp(); break;
+          case UP: moveUp(); break;
           case RT: moveRight(); break;
           case LT: moveLeft(); break;
-          case BK: moveDown(); break;
+          case DN: moveDown(); break;
         }
       break;
       case BK:
         switch (act.orientation){
-          case FD: moveDown(); break;
+          case UP: moveDown(); break;
           case RT: moveLeft(); break;
           case LT: moveRight(); break;
-          case BK: moveUp(); break;
+          case DN: moveUp(); break;
         }    
       break;
       case RT:
@@ -453,51 +544,44 @@ function nextCommand(){
         animationAn(startAngle,endAngle,false);
       break;
     }
+    act.cmdExec++;
+    act.selected++;
   }
-  
 }
 
 function restart(){
-    act.program = [];
-    act.position = [0,4];
-    act.orientation = FD;
-    act.cmdExec = 0;
-    act.play = false;//play means that the program is executed but may be it is pause
-    act.pause = false;
-    act.selected = -1;
-    act.level = 0;
-    setOrientation();
+	deleteProgram();
+	setProgramState(STOP);
+	setOrientation();
     setSquare();
-    deleteProgram();
     highlightCommand(-1);//-1 means none
+    clearTrace();
 }
 
 function stop(){
-  act.position = [0,4];
-  act.orientation = FD;
-  act.cmdExec = 0;
-  act.play = false;//play means that the program is executed but may be it is paused
-  act.pause = false;
-  act.selected = -1;
+  setProgramState(STOP);
   setOrientation();
   setSquare();
-  highlightCommand(-1);//-1 means none
+  clearTrace();
   clearInterval(inter);
   clearInterval(inter1);
   clearInterval(inter2);
 }
 
 function runFast(currentCommand){
-  if (!act.play){
+  if (!act.play || (act.play && act.pause)){
+  	clearTrace();
     act.position = [0,4];
-    act.orientation = FD;
+    act.orientation = DIR;
+    
     for (i=0; i<=currentCommand; i++){
+      startpoint = positionToCanvas();
       switch (act.program[i]){
         case FD:
           switch (act.orientation){
             case FD: if (act.position[1]>0 && canMove(SOUTH)) act.position[1]--; break;
-            case RT: if (act.position[0]<6 && canMove(EAST)) act.position[0]++; break;//grid is 6 cells wide
-            case LT: if (act.position[0]>0 && canMove(WEST)) act.position[0]--; break;
+            case RT: if (act.position[0]<6 && canMove(EAST) ) act.position[0]++; break;//grid is 6 cells wide
+            case LT: if (act.position[0]>0 && canMove(WEST) ) act.position[0]--; break;
             case BK: if (act.position[1]<4 && canMove(NORTH)) act.position[1]++; break;
           }
         break;
@@ -516,11 +600,14 @@ function runFast(currentCommand){
           act.orientation = (act.orientation + 3) % 4;
         break;
       }
+      endpoint = positionToCanvas();
+      trace(startpoint,endpoint);
     }
     setSquare();
     setOrientation();
-    act.cmdExec = i;
-    highlightCommand(i-1);
+    act.cmdExec = currentCommand+1;
+    act.selected = currentCommand;
+    setProgramState(PAUSED);
   }
 }
 
@@ -529,7 +616,7 @@ function initLevel(){
     setAnimation('exit','reset','0s');
     newLevel(act.level);
     act.position = [0,4];
-    act.orientation = FD;
+    act.orientation = DIR;
     setSquare();
     setOrientation();
     deleteProgram();
@@ -537,42 +624,58 @@ function initLevel(){
     act.play = false;
   }
 
-
 function onMenuNext(){
-    act.level = (act.level+1)%5;
+    act.level = (act.level+1)%6;
     initLevel();
-  };
+}
 
+function init(maze,levels){
+  //if maze is true then there is no background
+  //and there is canvas
 
-function init(){
+  //if levels there are levels
+
   // Internal level number is zero-based; but we display it as 1-based.
   // We allow/fix newLevel if it's outside its proper range.
   onResize();
   // Create a <style> element for animations, to avoid CORS issues on Chrome
   // TODO: dynamically? document.head.appendChild(document.createElement('style'));
   // Install event handlers
-  
+  if (ge('sel')){
+  	ge('sel').selectedIndex = 0;//fix selected index after refresh
+  }
+
   document.body.onresize = onResize;
   ge('bar_home').onclick = onHome;
   ge('bar_help').onclick = onHelp;
-  ge('bar_next').onclick = onMenuNext;
-
-  ge('bar_previous').onclick = function(){
-    act.level = (act.level+4)%5;
-    initLevel();
-
-  };
-
   ge('help').onclick = onHelpHide;
   ge('bar_about').onclick = onAbout;
   ge('bar_fullscreen').onclick = onFullScreen;
   for (i = 0; i < document.images.length; i += 1) {
     document.images[i].ondragstart = doPreventDefault;
   }
+  if (levels){
+  	act.level = 0;
+    ge('bar_next').onclick = onMenuNext;
+    ge('bar_previous').onclick = function(){
+      act.level = (act.level+5)%6;
+      initLevel();
+      };
+    ge('level').innerHTML = act.level + 1;
+  }
 
   restart();
-  newMaze();
-  ge('level').innerHTML = act.level + 1;
+  if (maze){
+    newMaze();
+    ge('newmaze').addEventListener('click',function(){
+       newMaze();
+       if (levels){
+       	ge('level').innerHTML = act.level + 1;
+       }
+  });
+
+  }
+
 
   bindCommand('cforward',FD);
   bindCommand('cbackward',BK);
@@ -580,42 +683,131 @@ function init(){
   bindCommand('cright',RT);
 
   ge('cgo').addEventListener('click',function(event){
-    //act.position = [0,4];
-    //act.orientation = FD;
-    //act.cmdExec = 0;
     if (!act.play){
-    act.play = true;
-    setTimeout(nextCommand,100);
+    	if (act.outofplace){
+    		act.cmdExec = 0;
+    		clearTrace();
+    	}
+	    setProgramState(PLAYING);
+	    setSquare();
+	    setOrientation();
+	    setTimeout(nextCommand,100);
+    }
+    else{
+    	if (act.pause){
+		    setProgramState(PLAYING);
+		    setSquare();
+		    setOrientation();
+		    setTimeout(nextCommand,100);
+    	}
     }
   });
   
-  ge('cdelete').addEventListener('click',restart);
+  if (ge('cdelete1')){
+  ge('cdelete1').addEventListener('click',deleteCommand);}
 
-  ge('cstop').addEventListener('click',function(){
-      stop();
+  ge('cdelete').addEventListener('click',function(){
+  	if (!act.play || (act.play && act.pause)){
+  		restart();
+  	}
   });
+
+  ge('cstop').addEventListener('click',stop);
+
+  ge('cpause').addEventListener('click',function(){
+  	setProgramState(PAUSED);
+    act.selected = act.cmdExec-1;
+  });
+  ge('cpencil').addEventListener('click',function(){
+      if (!act.play || (act.play && act.pause)){
+        clearTrace();
+        act.pencil = !act.pencil;
+        if (act.pencil){
+          ge('cpencil').src = "resource/pencil-on.svg";
+          if (act.outofplace){
+          	runFast(act.program.length-1);
+          	setProgramState(ENDOFPROGRAM);
+          }
+          else{
+          	runFast(act.selected);
+          }
+        }
+        else{
+          ge('cpencil').src = "resource/pencil-off.svg";
+          clearTrace();
+        }
+      }
+    });
   for (let i=0; i<allCommands; i++){
     ge('cell'+i.toString()).onclick = function(){
-      if (i<act.program.length){
-        runFast(i); 
-        act.selected = i; 
-      }
+    	if (i<act.program.length){
+    		runFast(i);
+    		highlightCommand(i);
+    		act.selected = i;
+    		act.cmdExec = i + 1;
+    		act.outofplace = false;
+    	}
     };
   }
+  ge('main').style.display = "";
+  ge('loading').style.display = "none";
 
-  ge('newmaze').addEventListener('click',function(){
-    //canvasDraw();
-    newMaze();
-    ge('level').innerHTML = act.level + 1;
-  });
-  initLevel();
 }
 
+
+window.onload = function(){init(maze,levels)};
 window.onerror = onError;
-window.onload = init;
+
 // Call onResize even before the images are loaded
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', onResize);
-} else {  // DOMContentLoaded already fired
+} else {  // DOMContentLoaded` already fired
   onResize();
 }
+
+
+function changeGrid(){
+  var grids = {"empty"    		:"resource/grid.svg",
+               "alpha"    		:"resource/alphabet.svg",
+               "alphanotext"	:"resource/alphabet_notext.svg",
+               "dice"     		:"resource/dice.svg",
+               "school"   		:"resource/school.svg",
+               "instrtext"    	:"resource/instr.svg",
+               "instr"			:"resource/instr_notext.svg",
+               "toys"    		:"resource/toys.svg",
+               "signs"    		:"resource/signs.svg",
+               "shapestext"   	:"resource/shapes.svg",
+               "shapes"			:"resource/shapes_notext.svg",
+               "froutatext"   	:"resource/frouta.svg",
+               "frouta"			:"resource/frouta_notext.svg",
+               "colorstext"   	:"resource/colors.svg",
+               "colors"			:"resource/colors_notext.svg",
+               "monuments"		:"resource/monuments.svg",
+               "greekmonuments" :"resource/greekmonuments.svg",
+               "greece"   		:"resource/greece.svg",
+               "flags"    		:"resource/flags.svg",
+               "flowers"  		:"resource/flowers.svg",
+               "playground"		:"resource/playground.svg",
+}
+  var s = ge('sel');
+  var i = s.selectedIndex;
+  var sv = s.options[i].value;
+  var im = grids[sv];
+  var imurl = "url('" + im + "')";
+
+  ge('stage').style.backgroundImage = imurl;
+}
+
+function changeChar(){
+  var chars = {"ladybug" :"resource/ladybug.svg",
+               "car" :"resource/eprobot.svg",
+               "student"  :"resource/student.svg",
+}
+  var s = ge('selchar');
+  var i = s.selectedIndex;
+  var sv = s.options[i].value;
+  var im = chars[sv];
+
+  ge('eprobot').src = im;
+}
+

@@ -2,11 +2,7 @@ const mazeColumns = 7;
 const mazeRows = 5;
 
 
-const NORTH = 1
-const WEST = 2
-const SOUTH = 4
-const EAST = 8
-const SET = 16
+
 
 var g = {maze:[], cmds:[], positions:[]};
 var solved;
@@ -134,13 +130,25 @@ function generateMaze(x, y) {
     }
 }
 
-
-function newMaze(){
-    level = 0;
-    act.level = 0;
+function drawMazeonCanvas(){
+    ge('stage').style.background = "none";
+    ge('stage').style.backgroundColor = "white";
     c = document.getElementById('mycanvas');
     ctx = c.getContext("2d");
     ctx.clearRect(0,0,c.width,c.height);
+
+    for (var i=0; i<mazeColumns; i++)
+    {
+        for (var j=0; j<mazeRows; j++){
+            drawSquare(i*42.6,120-j*30,g.maze[getId(i,j)]);
+        }
+    }
+
+}
+
+function newMaze(){
+	level = 0;
+	act.level  = 0;
     g = null;
     g = {maze: []};
     for (var id = 0; id < mazeColumns * mazeRows; ++id) {
@@ -160,12 +168,7 @@ function newMaze(){
     /*debug
     g.maze = [3,13,7,5,1,5,9,10,3,5,5,12,11,10,6,12,3,5,5,4,12,3,9,10,3,9,7,9,14,6,4,12,6,5,12];*/
     
-    for (var i=0; i<mazeColumns; i++)
-    {
-        for (var j=0; j<mazeRows; j++){
-            drawSquare(i*42.6,120-j*30,g.maze[getId(i,j)]);
-        }
-    }
+    drawMazeonCanvas();
 
     //that's the door x,y in the original
     endX = 6;
@@ -183,10 +186,11 @@ function newMaze(){
     g.cmds = pathtoCommands(path);
     switch(level){
         case 0: pIndex = 2+Math.floor(Math.random()*2); break;
-        case 1: pIndex = 4+Math.floor(Math.random()*4); break;
-        case 2: pIndex = 8+Math.floor(Math.random()*4); break;
-        case 3: pIndex = 12+Math.floor(Math.random()*4); break;
-        case 4: pIndex = 16+Math.floor(Math.random()*4); break;    
+        case 1: pIndex = 4+Math.floor(Math.random()*3); break;
+        case 2: pIndex = 8+Math.floor(Math.random()*3); break;
+        case 3: pIndex = 12+Math.floor(Math.random()*3); break;
+        case 4: pIndex = 16+Math.floor(Math.random()*3); break;
+        case 5: pIndex = 20+Math.floor(Math.random()*3); break;
     }
     if (pIndex > g.positions.length-1){
         pIndex = g.positions.length-1;
@@ -198,6 +202,8 @@ function newMaze(){
 
 
 function newLevel(level){
+    var pIndex;
+    drawMazeonCanvas();
     //that's the door x,y in the original
     endX = 6;
     endY = 4;
@@ -214,18 +220,20 @@ function newLevel(level){
     g.cmds = pathtoCommands(path);
     switch(level){
         case 0: pIndex = 2+Math.floor(Math.random()*2); break;
-        case 1: pIndex = 4+Math.floor(Math.random()*4); break;
-        case 2: pIndex = 8+Math.floor(Math.random()*4); break;
-        case 3: pIndex = 12+Math.floor(Math.random()*4); break;
-        case 4: pIndex = 16+Math.floor(Math.random()*4); break;    
+        case 1: pIndex = 4+Math.floor(Math.random()*3); break;
+        case 2: pIndex = 8+Math.floor(Math.random()*3); break;
+        case 3: pIndex = 12+Math.floor(Math.random()*3); break;
+        case 4: pIndex = 16+Math.floor(Math.random()*3); break;
+        case 5: pIndex = 20+Math.floor(Math.random()*3); break;
     }
     if (pIndex > g.positions.length-1){
         pIndex = g.positions.length-1;
     }
     act.exit = [g.positions[pIndex].x,4-g.positions[pIndex].y];
     ge('exit').style.marginLeft = sformat('{}em',act.exit[0]*6);
-    ge('exit').style.marginTop = sformat('{}em',act.exit[1]*6);	
+    ge('exit').style.marginTop = sformat('{}em',act.exit[1]*6);
 }
+
 
 
 

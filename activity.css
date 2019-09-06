@@ -11,7 +11,7 @@ SPDX-License-Identifier: CC-BY-SA-4.0
   -ms-user-select: none;
   user-select: none;
   overflow: hidden;
-/*  border-style: dotted;
+  /*border-style: dotted;
   border-width:1px;
   border-color: red;*/
 }
@@ -24,7 +24,6 @@ html, body {  /* flexbox needs this to center the main div */
 body {
   background-color: rgb(0,0,0);
   color: rgb(255,255,255);
-  font-size: 10px;
   margin: 0;
   display: flex;
   align-items: center;  /* vertically center main div */
@@ -41,7 +40,7 @@ body {
   background-size: 100% 100%;
   height: 36em;
   width: 64em;
-  /*text-align: center;*/
+  align-self:center;
   overflow: hidden;
   padding-top: 0.5em;  /* workaround to avoid space-evenly */
   padding-bottom: 7em;  /* space for the menubar */
@@ -51,6 +50,7 @@ body {
   align-items: center;
   position: relative;
   overflow:hidden;
+  margin:auto;
 }
 
 .index{
@@ -59,44 +59,60 @@ body {
   color:black;
 }
 #sel {
-  height:2em;
+  height:2.5em;
   margin-top:0.5em;
-  font-size:1em;
+  font-size:0.9em;
+  width:8em;
+}
+#selchar {
+  height:2em;
+  font-size:0.9em;
 }
 
 #mats{
   display:block;
   text-align:left;
   height:3.6em;
-  width:10em;
-  margin-bottom: 2em;
+  width:8em;
+  margin-bottom: 1em;
   color:black;
-  font-size:1em;
+  font-size:0.9em;
+}
+#chars{
+  display:block;
+  text-align:left;
+  height:4em;
+  width:8em;
+  margin-bottom: 1em;
+  color:black;
+  font-size:0.9em;
 }
 #ui{
   display:inline-block;
   float:left;
   overflow: auto;
-  margin-left: 1em;
-  width:10em;
+  width:8em;
   text-align:center;
+  margin-left:1.35em;
+
+  /*border: 2px solid red;*/
 }
 #bottom{
   display:inline-block;
   float:left;
   overflow: auto;
-  width:10em;
+  width:8em;
 }
 #cforward{
-	height:4em;
+  height:4em;
   cursor:pointer;  
 }
 #cleft{
-	width:4em;
+  width:3.8em;
   cursor:pointer;  
 }
 #cright{
-	width:4em;
+  width:3.8em;
   cursor:pointer;  
 }
 #cbackward{
@@ -104,56 +120,74 @@ body {
   cursor:pointer;  
 }
 #up{
-  background-color:#ffffff77;
+  background-color: rgba(255,255,255,0.5);
   display:inline-block;
   float:left;
   overflow: auto;
-  width:10em;
+  width:8em;
 }
 #middle{
-  background-color:#ffffff77;
+  background-color: rgba(255,255,255,0.5);
   display:inline-block;
   float:left;
   overflow: auto;
-  width:10em;
+  width:8em;
 }
 #down{
-  background-color:#ffffff77;	
+  background-color: rgba(255,255,255,0.5);	
   display:inline-block;
   float:left;
   overflow: auto;
-  width:10em;
+  width:8em;
 }
 
 #newmaze{
-  width:80%;
   margin-top:1em;
-  cursor:pointer;
-}
-#cgo{
-  width:80%;
-  margin-top:1em;
+  width: 40%;
   cursor:pointer;
 }
 
+#cgo{
+  margin-top:1em;
+  width:40%;
+  cursor:pointer;
+}
+
+#cpause{
+	margin-top:1em;
+	width:40%;
+	cursor:pointer;
+}
 #cstop{
-  width:80%;
+  width:40%;
   margin-top:1em;
   cursor:pointer;  
 }
 #cdelete{
-  width:80%;
+  width:40%;
   margin-top:1em;
   cursor:pointer;  
 }
+
+#cdelete1{
+  width:40%;
+  margin-top:1em;
+  cursor:pointer;  
+}
+#cpencil{
+  width:40%;
+  margin-top:1em;
+  cursor:pointer;  
+}
+
 #program{
-  background-color:#00000077;
+  background-color:rgba(0,0,0,0.5);
   display:inline-block;
   height: 32em;
-  width: 9em;
+  width: 10em;
   display:inline-block;
-  margin-left:0.4em;
-  margin-right:0.4em;
+  margin-left:0.2em;
+  margin-right:0.2em;
   padding: 0.1em 0.1em 0.1em 0.1em;
   height:30em;
   vertical-align: top;
@@ -163,17 +197,19 @@ body {
   display:inline-block;
   height: 24em;
   width: 100%;
-  cursor:pointer;  
 }
 
-.cell{
-	display: inline-block;
-  margin-left:0.1em;
-  margin-top:0.1em;
-	height: 2.85em;
-	width: 3.9em;
-	text-align: center;
+.progButtons{
 	cursor:pointer;
+}
+.cell{
+  display: inline-block;
+  margin-left:0.05em;
+  margin-top:0.1em;
+  height: 2.85em;
+  width: 3em;
+  text-align: center;
+  cursor:pointer;
   vertical-align: middle;
 }
 
@@ -181,7 +217,7 @@ body {
 .cell img{
   margin-left: -0.1em;
   height: 100%;
-  max-width:70%;
+  max-width:80%;
   vertical-align: middle;
   filter: hue-rotate(210deg) brightness(140%);
 }
@@ -189,27 +225,37 @@ body {
 .cellHighlight{
   filter: brightness(180%);
   border: 2px solid yellow;
-  
-  transform: scale1.1);
+  transform: scale(1.1);
 }
 #stage{
-  position:absolute;
+  position: absolute;
   display:inline-block;
   margin-bottom: 1.5em;
   margin-right:0.5em;
-  height: 30.1em;
-  width:42em;
-  z-index: 1;
+  height: 30em;
+  width:43em;
+  background-image: url('resource/grid.svg');
+  background-size:contain;
+  background-repeat: no-repeat;
 }
-#mycanvas{
+#stagebkg{
   background-color:white;
   position:absolute;
   display:inline-block;
   margin-bottom: 1.5em;
+  margin-right:6.5em;
+  margin-left:6em;
+  height: 30.1em;
+  width:30.6em;
+}
+#mycanvas{
+  position:absolute;
+  display:inline-block;
+  margin-bottom: 1.5em;
   margin-right:0.5em;
   height: 30.1em;
-  width:42em;
-  z-index: 0;
+  width:43em;
+  z-index: 100;
 }
 #grid{
 	width:100%;
@@ -217,21 +263,23 @@ body {
   text-align:left;
 }
 #eprobot{
-  position:absolute;
-  display:block;
+	position:absolute;
 	width:6em;
 	height:6em;
 	margin-left:0em;
 	margin-top:0em;
+	z-index: 200;
 }
+
 #exit{
   position:absolute;
-  display:block;
   width:6em;
   height:6em;
   margin-left:0em;
   margin-top:0em;
+  z-index: 199;
 }
+
 
 @-webkit-keyframes menubar_animation {
   from { left: -30em; }
@@ -292,10 +340,26 @@ body {
   height: 100%;
   top: 0;  /* IE and old webview ignore "fixed" for flex childs */
   left: 0;
-  z-index: 1000;
+  z-index:999;
 }
 
+#loading {
+  display: block; /* javascript toggles that to none */
+  text-align: center;
+  vertical-align: middle;
+  justify-content: center;
+  position: fixed;
+  background-color: rgba(63,63,63,0.5);
+  width: 100%;
+  height: 100%;
+  top: 0;  /* IE and old webview ignore "fixed" for flex childs */
+  left: 0;
+  z-index:999;
+}
+
+
 #help .dialog {
+  position: absolute;
   text-align: center;
   width: 19em;
   background-color: rgb(255,255,255);
