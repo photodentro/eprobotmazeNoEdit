@@ -267,7 +267,10 @@ function trace(startpoint,endpoint){
     ctx.setLineDash([]);
     ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.strokeRect(startpoint.x,startpoint.y,endpoint.x-startpoint.x,endpoint.y-startpoint.y);
+    ctx.strokeStyle = 'darkred';
+    ctx.moveTo(startpoint.x,startpoint.y+0.5);
+    ctx.lineTo(endpoint.x,endpoint.y+0.5);
+    
     ctx.stroke();
     ctx.closePath();
   }
@@ -665,15 +668,12 @@ function init(maze,levels){
   }
 
   restart();
+  newMaze(0);
   if (maze){
-    newMaze();
-    ge('newmaze').addEventListener('click',function(){
-       newMaze();
-       if (levels){
-       	ge('level').innerHTML = act.level + 1;
-       }
-  });
-
+    ge('maze0').addEventListener('click',function(){newMaze(0);});
+    ge('maze1').addEventListener('click',function(){newMaze(1);});
+    ge('maze2').addEventListener('click',function(){newMaze(2);});
+    ge('maze3').addEventListener('click',function(){newMaze(3);});
   }
 
 

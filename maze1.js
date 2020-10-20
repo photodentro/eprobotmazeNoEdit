@@ -73,10 +73,11 @@ function drawSquare(squareX,squareY,squareCode){//thanks @alkisg
     var gWidth = 42.3;//must be the scaling
     var gHeight = 30;
     ctx.lineWidth = 0.2;
-    ctx.setLineDash([3]);
+    ctx.setLineDash([5,15]);
     ctx.beginPath();
     ctx.strokeRect(squareX,squareY,gWidth,gHeight);
     ctx.lineWidth = 3;
+    ctx.lineCap = 'round';
     ctx.setLineDash([]);
     ctx.beginPath();
     if (squareCode & 1) {
@@ -135,18 +136,99 @@ function drawMazeonCanvas(){
     ge('stage').style.backgroundColor = "white";
     c = document.getElementById('mycanvas');
     ctx = c.getContext("2d");
-    ctx.clearRect(0,0,c.width,c.height);
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = '#000000';
+    ctx.fillRect(0,0,c.width-2,c.height);
 
-    for (var i=0; i<mazeColumns; i++)
+    ctx.strokeRect(0.5,0.5,c.width-3,c.height-1);
+    
+    for (var i=0; i<mazeColumns-1; i++)
     {
+        xaxis = (i+1)*42.5+i%2*0.5;
+        ctx.beginPath();
+        ctx.setLineDash([5]);
+        ctx.lineWidth = 0.5;
+        ctx.strokeStyle = 'gray';
+        ctx.moveTo(xaxis,0);
+        ctx.lineTo(xaxis,c.height-1)
+        ctx.stroke();
+        ctx.closePath();
+        ctx.beginPath();
+        ctx.setLineDash([]);
+        ctx.lineWidth = 1;
+        ctx.lineCap = 'round'
+        ctx.strokeStyle = 'black';
+        inVerLine = false;
         for (var j=0; j<mazeRows; j++){
-            drawSquare(i*42.6,120-j*30,g.maze[getId(i,j)]);
-        }
-    }
+            /*drawSquare(i*42.6,120-j*30,g.maze[getId(i,j)]);*/
+            
+            if (g.maze[getId(i,j)]&8){
+                if (!inVerLine){
+                    ctx.moveTo(xaxis,120-j*30+30);
+                    inVerLine = true;
+                }
+            }
+            else{
+                if (inVerLine){
+                    ctx.lineTo(xaxis,120-j*30+30)
+                    inVerLine = false;
+                }
+            }
 
+        }
+        if (inVerLine){
+            ctx.lineTo(xaxis,120-j*30+30)
+            inVerLine = false;
+        }
+        ctx.stroke();
+        ctx.closePath();
+    }
+    
+
+    ctx.beginPath();
+    for (var j=0; j<mazeRows; j++)
+    {
+        yaxis = 120-j*30+0.5+30;
+        ctx.beginPath();
+        ctx.setLineDash([5]);
+        ctx.lineWidth = 0.5;
+        ctx.strokeStyle = 'gray';
+        ctx.moveTo(0,yaxis);
+        ctx.lineTo(c.width-1,yaxis);
+        ctx.stroke();
+        ctx.closePath();
+        ctx.beginPath();
+        ctx.setLineDash([]);
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = 'black';
+        inHorLine = false;
+        for (var i=0; i<mazeColumns; i++){
+            if (g.maze[getId(i,j)]&1){
+                if (!inHorLine){
+                    ctx.moveTo(i*42.5,yaxis);
+                    inHorLine = true;
+                }
+            }
+            else{
+                if (inHorLine){
+                    ctx.lineTo(i*42.5,yaxis)
+                    inHorLine = false;
+                }
+            }
+
+        }
+        if (inHorLine){
+            ctx.lineTo(i*42.5,yaxis)
+            inHorLine = false;
+        }
+        ctx.stroke();
+        ctx.closePath();
+
+    }
 }
 
-function newMaze(){
+function newMaze(mazenum){
+    
 	level = 0;
 	act.level  = 0;
     g = null;
@@ -154,20 +236,32 @@ function newMaze(){
     for (var id = 0; id < mazeColumns * mazeRows; ++id) {
         g.maze[id] = 15;
     }
-    
-    // Generate g.maze 
-    
-    generateMaze(Math.floor(Math.random() * mazeColumns),
-             Math.floor(Math.random() * mazeRows));
-    
-    // Remove set 
-    for (var id = 0; id < mazeColumns * mazeRows; ++id) {
-        g.maze[id] = g.maze[id] ^ SET
-    }
+    switch (mazenum){
+        case 0: 
+            // Generate g.maze 
+            generateMaze(Math.floor(Math.random() * mazeColumns),
+                     Math.floor(Math.random() * mazeRows));
+            
+            // Remove set 
+            for (var id = 0; id < mazeColumns * mazeRows; ++id) {
+                g.maze[id] = g.maze[id] ^ SET
+            }
+            break;
+        case 1:
+            g.maze = [ 3,13, 7, 5, 1, 5, 9,10, 3, 5, 5,12,11,10, 6,12, 3, 5, 5, 4,12, 3, 9,10, 3, 9, 7, 9,14, 6, 4,12, 6, 5,12];
+            break;
+        case 2:
+            g.maze = [ 3, 1, 9, 3, 1, 5, 9,14,10,10,14,10, 3,12, 3,12, 6, 5,12, 6, 9, 6, 9,11, 3, 5, 5,12, 7,12, 6, 4, 5, 5,13];
+            break;
+        case 3:
+            g.maze = [ 3,13, 3, 5, 5, 1,13, 6, 9, 2, 5,13, 6, 9, 3,12,10, 3, 5, 5, 8, 2, 5,12,10, 3,13,10,14, 7, 5,12, 6, 5,12];
+            break;
+        }    
 
-    /*debug
-    g.maze = [3,13,7,5,1,5,9,10,3,5,5,12,11,10,6,12,3,5,5,4,12,3,9,10,3,9,7,9,14,6,4,12,6,5,12];*/
     
+        console.log(g.maze);
+    //debug    
+    //g.maze = [3,13,7,5,1,5,9,10,3,5,5,12,11,10,6,12,3,5,5,4,12,3,9,10,3,9,7,9,14,6,4,12,6,5,12];
     drawMazeonCanvas();
 
     //that's the door x,y in the original
@@ -184,20 +278,35 @@ function newMaze(){
     recursiveSolve(0,0);
     g.positions = [];
     g.cmds = pathtoCommands(path);
-    switch(level){
-        case 0: pIndex = 2+Math.floor(Math.random()*2); break;
-        case 1: pIndex = 4+Math.floor(Math.random()*3); break;
-        case 2: pIndex = 8+Math.floor(Math.random()*3); break;
-        case 3: pIndex = 12+Math.floor(Math.random()*3); break;
-        case 4: pIndex = 16+Math.floor(Math.random()*3); break;
-        case 5: pIndex = 20+Math.floor(Math.random()*3); break;
-    }
+    if (mazenum == 0){//when everything is random we allow some random flower position
+	    switch(level){
+	        case 0: pIndex = 2+Math.floor(Math.random()*2); break;
+	        case 1: pIndex = 4+Math.floor(Math.random()*3); break;
+	        case 2: pIndex = 8+Math.floor(Math.random()*3); break;
+	        case 3: pIndex = 12+Math.floor(Math.random()*3); break;
+	        case 4: pIndex = 16+Math.floor(Math.random()*3); break;
+	        case 5: pIndex = 20+Math.floor(Math.random()*3); break;
+	    }
+	}
+	else{
+		switch(level){//same flower positions in the fix mazes
+	        case 0: pIndex = 3; break;
+	        case 1: pIndex = 6; break;
+	        case 2: pIndex = 10; break;
+	        case 3: pIndex = 15; break;
+	        case 4: pIndex = 18; break;
+	        case 5: pIndex = 22; break;
+		}
+	}
     if (pIndex > g.positions.length-1){
         pIndex = g.positions.length-1;
     }
     act.exit = [g.positions[pIndex].x,4-g.positions[pIndex].y];
     ge('exit').style.marginLeft = sformat('{}em',act.exit[0]*6);
     ge('exit').style.marginTop = sformat('{}em',act.exit[1]*6);
+    if (levels){
+        ge('level').innerHTML = act.level + 1;
+    }
 }
 
 
@@ -230,8 +339,12 @@ function newLevel(level){
         pIndex = g.positions.length-1;
     }
     act.exit = [g.positions[pIndex].x,4-g.positions[pIndex].y];
-    ge('exit').style.marginLeft = sformat('{}em',act.exit[0]*6);
+    ge('exit').style.marginLeft = sformat('{}em',act.exit[0]*6.2);
     ge('exit').style.marginTop = sformat('{}em',act.exit[1]*6);
+    if (levels){
+        ge('level').innerHTML = act.level + 1;
+    }
+
 }
 
 
